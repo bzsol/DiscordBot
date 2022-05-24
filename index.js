@@ -1,3 +1,4 @@
+
 const { Client, Intents } = require("discord.js");
 const client = new Client(
     { 
@@ -89,11 +90,16 @@ client.on('messageCreate', async (message) => {
     if(command === '!lyrics') {
         const query = args.join(' ');
     
-        client.player.getLyrics(message.guild, query).then(data => {
-            return message.channel.send({ content: `Song Title: **${typeof data.song != 'object' ? data.song : data.song.title}**\n\n${data.lyrics}`});
-        }).catch(async error => {
-            return message.channel.send({ content: error.message});
-        })
+       client.player.getSongInfo(message.guild,query).then(async data => {
+            console.log(data.song.author);
+            console.log(data.song.title);
+            try{
+                fetch(`https://api.lyrics.ovh/v1/${data.song.author}/${data.song.title}`).then(resp => resp.json()).then(data => message.channel.send(data));
+            }
+            catch{
+                return message.channel.send("Fetch problem with API");
+            }
+       });
     }
     if(command === '!pause') {
         const query = args.join(' ');
